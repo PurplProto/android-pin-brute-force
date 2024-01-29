@@ -37,6 +37,7 @@ pub fn char_to_scancode(c: char) -> Option<u8> {
         'x' | 'X' => Some(0x1b),
         'y' | 'Y' => Some(0x1c),
         'z' | 'Z' => Some(0x1d),
+        ' ' => Some(0x2c),
         _ => None,
     }
 }
