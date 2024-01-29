@@ -1,16 +1,6 @@
 // These mappings are for the US keyboard layout.
 pub fn char_to_scancode(c: char) -> Option<u8> {
     match c {
-        '1' => Some(0x1e),
-        '2' => Some(0x1f),
-        '3' => Some(0x20),
-        '4' => Some(0x21),
-        '5' => Some(0x22),
-        '6' => Some(0x23),
-        '7' => Some(0x24),
-        '8' => Some(0x25),
-        '9' => Some(0x26),
-        '0' => Some(0x27),
         'a' | 'A' => Some(0x04),
         'b' | 'B' => Some(0x05),
         'c' | 'C' => Some(0x06),
@@ -37,6 +27,16 @@ pub fn char_to_scancode(c: char) -> Option<u8> {
         'x' | 'X' => Some(0x1b),
         'y' | 'Y' => Some(0x1c),
         'z' | 'Z' => Some(0x1d),
+        '1' => Some(0x1e),
+        '2' => Some(0x1f),
+        '3' => Some(0x20),
+        '4' => Some(0x21),
+        '5' => Some(0x22),
+        '6' => Some(0x23),
+        '7' => Some(0x24),
+        '8' => Some(0x25),
+        '9' => Some(0x26),
+        '0' => Some(0x27),
         ' ' => Some(0x2c),
         _ => None,
     }
