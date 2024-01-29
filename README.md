@@ -33,7 +33,7 @@ This has only been tested on WSL using Ubuntu 22.04.3 LTS.
 4. Export `ANDROID_NDK_HOME` with the path of the NDK folder, you can find more [guidance here](https://github.com/bbqsrc/cargo-ndk). I suggest adding this variable to your `.bashrc`.
 5. Clone this repo
 6. Open a shell and cd into the cloned repo
-7. Execute `cargo build --release`
+7. Execute `cargo ndk -t arm64-v8a -p 33 build --release`
 8. Locate the built executable at `target/aarch64-linux-android/release/android-pin-brute-force`
 
 ## Attributions
