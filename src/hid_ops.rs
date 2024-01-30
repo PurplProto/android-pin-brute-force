@@ -6,14 +6,14 @@ use std::{
 use crate::key_map;
 
 pub fn write_to_device_file(device_file_path: &str, data: &str) -> io::Result<()> {
-    println!("Sending pin: {}", data);
+    log::info!("Sending pin: {}", data);
 
     let mut file = OpenOptions::new().write(true).open(device_file_path)?;
 
     for char in data.chars() {
         let keycode = key_map::char_to_scancode(char);
         match keycode {
-            None => println!("Keycode not found for char: {}", char),
+            None => log::error!("Keycode not found for char: {}", char),
             Some(keycode) => {
                 send_scancode(&mut file, keycode)?;
                 send_scancode(&mut file, 0x00)?;
@@ -32,9 +32,9 @@ fn send_scancode(file: &mut File, keycode: u8) -> Result<(), io::Error> {
     file.flush()?;
 
     if result > 0 {
-        println!("Successfully wrote {} bits", result);
+        log::debug!("Successfully wrote {} bits", result);
     } else {
-        println!("Failed to write scancode: {}", keycode);
+        log::debug!("Failed to write scancode: {}", keycode);
     }
 
     // Give time for the device to process the keypress
