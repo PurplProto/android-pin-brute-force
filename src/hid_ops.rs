@@ -1,6 +1,7 @@
 use std::{
     fs::{File, OpenOptions},
-    io::{self, Write}, thread, time,
+    io::{self, Write},
+    thread, time,
 };
 
 use crate::key_map;
@@ -26,7 +27,12 @@ pub fn write_to_device_file(device_file_path: &str, data: &str) -> io::Result<()
 
 fn send_scancode(file: &mut File, keycode: u8) -> Result<(), io::Error> {
     // Write the scancode to the device file
-    let result = file.write(&[0x00, 0x00, keycode, 0x00, 0x00, 0x00, 0x00, 0x00])?;
+    let result = file.write(&[
+        0x00,    // Modifier byte
+        0x00,    // Reserved
+        keycode, // Keycode
+        0x00, 0x00, 0x00, 0x00, 0x00,
+    ])?;
 
     // Ensure the data is written to the device file
     file.flush()?;
