@@ -5,7 +5,7 @@ use std::process::exit;
 
 mod hid_ops;
 mod key_map;
-mod pin_list_4_digit;
+mod pin_lists;
 
 static KEYBOARD_DEVICE: &str = "/dev/hidg0";
 
