@@ -1,10 +1,9 @@
+use crate::hid::key_map;
 use std::{
     fs::{File, OpenOptions},
     io::{self, Write},
     thread, time,
 };
-
-use crate::key_map;
 
 pub fn write_to_device_file(device_file_path: &str, data: &str) -> io::Result<()> {
     log::info!("Sending pin: {}", data);

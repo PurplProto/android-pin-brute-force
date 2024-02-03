@@ -5,8 +5,7 @@ use simple_logger::SimpleLogger;
 use std::{process::exit, thread, time};
 
 mod common;
-mod hid_ops;
-mod key_map;
+mod hid;
 mod pin_lists;
 
 fn main() {
@@ -43,7 +42,7 @@ fn start(settings: Settings) {
     let mut cool_down_index = 0;
 
     for pin in pin_lists::PIN_LIST_4 {
-        let mut result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, pin);
+        let mut result = hid::write_to_device_file(KEYBOARD_DEVICE, pin);
         let mut attempts = 30;
 
         while let Err(e) = result {
@@ -60,7 +59,7 @@ fn start(settings: Settings) {
             // Wait for 10 seconds before trying again
             thread::sleep(time::Duration::from_millis(10000));
 
-            result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, pin);
+            result = hid::write_to_device_file(KEYBOARD_DEVICE, pin);
         }
     }
 }
