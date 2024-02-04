@@ -1,9 +1,13 @@
+use std::time::Duration;
+
+#[derive(Debug)]
 pub struct Settings {
     pub device: String,
     pub cool_down: Vec<CoolDown>,
 }
 
+#[derive(Debug)]
 pub struct CoolDown {
-    pub duration: String,
-    pub count: u8,
+    pub duration: Duration,
+    pub count: i32,
 }
