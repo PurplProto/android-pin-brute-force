@@ -1,8 +1,9 @@
 use clap::Parser;
 use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
+use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
-use std::{process::exit, time::Duration};
+use std::{io::stdout, process::exit, time::Duration};
 
 mod common;
 mod hid;
@@ -21,6 +22,20 @@ fn main() {
 
     logger.env().init().unwrap();
     info!("Starting app...");
+
+    ctrlc::set_handler(move || {
+        // Ensure the cursor is visible before exiting
+        stdout()
+            .queue(terminal::Clear(terminal::ClearType::FromCursorDown))
+            .unwrap()
+            .queue(cursor::MoveToColumn(0))
+            .unwrap()
+            .execute(cursor::Show)
+            .unwrap();
+        error!("Received a signal indicating termination, exiting...");
+        exit(1);
+    })
+    .expect("Error setting Ctrl-C handler");
 
     let settings = parse_cli_args(&cli);
     debug!("Loaded settings: {:?}", settings);
