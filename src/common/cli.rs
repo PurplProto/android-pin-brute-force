@@ -1,5 +1,5 @@
 use super::{CoolDown, Settings, KEYBOARD_DEVICE};
-use crate::timeout::parse_duration;
+use crate::{pin_lists, timeout::parse_duration};
 use clap::{command, ArgAction, Args, Parser, Subcommand};
 use log::error;
 use std::process::exit;
@@ -16,13 +16,17 @@ pub struct Cli {
     #[arg(short, long, action = ArgAction::Append)]
     pub cool_down: Vec<String>,
 
-    /// Optional device file to use. Defaults to: /dev/hidg0
+    /// <Optional> device file to use. Defaults to: /dev/hidg0
     #[arg(short, long)]
     pub device: Option<String>,
 
-    /// Turn debugging information on. Can be passed multiple times for more verbosity.
+    /// <Optional> Size of the pin to brute force. Defaults to 4. Currently only supports 4.
+    #[arg(short, long)]
+    pub pin_size: Option<u8>,
+
+    /// <Optional> Turn debugging information on. Can be passed multiple times for more verbosity.
     #[arg(short, long, action = ArgAction::Count)]
-    pub verbose: u8,
+    pub verbose: Option<u8>,
 }
 
 #[derive(Subcommand)]
@@ -77,6 +81,14 @@ pub fn parse_cli_args(cli: &Cli) -> Settings {
                 }
                 cool_downs
             }
+        },
+        pin_list: match cli.pin_size {
+            Some(4) => &pin_lists::FOUR_DIGIT,
+            Some(s) => {
+                error!("Invalid pin size: {}", s);
+                exit(1);
+            }
+            None => &pin_lists::FOUR_DIGIT,
         },
     };
 }

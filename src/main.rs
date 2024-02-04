@@ -15,8 +15,8 @@ fn main() {
     let mut logger = SimpleLogger::new();
 
     logger = match cli.verbose {
-        0 => logger.with_level(LevelFilter::Info),
-        1 => logger.with_level(LevelFilter::Debug),
+        Some(0) => logger.with_level(LevelFilter::Info),
+        Some(1) => logger.with_level(LevelFilter::Debug),
         _ => logger.with_level(LevelFilter::Trace),
     };
 
@@ -38,9 +38,9 @@ fn main() {
     .expect("Error setting Ctrl-C handler");
 
     let settings = parse_cli_args(&cli);
-    debug!("Loaded settings: {:?}", settings);
+    trace!("Loaded settings: {:?}", settings);
 
-    match cli.command {
+    match &cli.command {
         Some(Commands::Start) => start(settings),
         Some(Commands::Resume(args)) => resume(settings, args),
         None => {
@@ -58,7 +58,7 @@ fn start(settings: Settings) {
     let mut cool_down_index = 0;
     let mut cool_down_count = 0;
 
-    for pin in pin_lists::PIN_LIST_4 {
+    for pin in settings.pin_list.iter() {
         let mut result = hid::write_to_device_file(&settings.device, pin);
         let mut attempts = 12;
 
@@ -92,7 +92,7 @@ fn start(settings: Settings) {
     }
 }
 
-fn resume(settings: Settings, args: ResumeArgs) {
+fn resume(settings: Settings, args: &ResumeArgs) {
     info!("Resuming brute force attack from pin: {}", args.pin);
     // let result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, "Hello World");
     // match result {
