@@ -1,5 +1,5 @@
 use clap::Parser;
-use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
+use common::{parse_cli_args, Cli, Commands, CoolDown, ResumeArgs, Settings};
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
@@ -55,11 +55,30 @@ fn main() {
 fn start(settings: Settings) {
     debug!("Starting brute force attack...");
 
+    start_brute_forcing(settings.device, settings.pin_list, settings.cool_down);
+}
+
+fn resume(settings: Settings, args: &ResumeArgs) {
+    debug!("Resuming brute force attack from pin: {}", args.pin);
+
+    let pin_list_start = settings.pin_list.iter().position(|&pin| pin == args.pin);
+    let pin_list = match pin_list_start {
+        Some(i) => &settings.pin_list[i..],
+        None => {
+            error!("Pin not found in pin list: {}", args.pin);
+            exit(1);
+        }
+    };
+
+    start_brute_forcing(settings.device, pin_list, settings.cool_down);
+}
+
+fn start_brute_forcing(device: String, pin_list: &[&str], cool_down: Vec<CoolDown>) {
     let mut cool_down_index = 0;
     let mut cool_down_count = 0;
 
-    for pin in settings.pin_list.iter() {
-        let mut result = hid::write_to_device_file(&settings.device, pin);
+    for pin in pin_list.iter() {
+        let mut result = hid::write_to_device_file(&device, pin);
         let mut attempts = 12;
 
         while let Err(e) = result {
@@ -76,27 +95,18 @@ fn start(settings: Settings) {
             // Wait for 10 seconds before trying again
             timeout::set_time_out(Duration::from_secs(10), "Retry sending pin in");
 
-            result = hid::write_to_device_file(&settings.device, pin);
+            result = hid::write_to_device_file(&device, pin);
         }
 
-        if settings.cool_down[cool_down_index].count == -1 {
+        if cool_down[cool_down_index].count == -1 {
             continue;
         }
 
-        if cool_down_count != settings.cool_down[cool_down_index].count {
+        if cool_down_count != cool_down[cool_down_index].count {
             cool_down_count += 1;
         } else {
             cool_down_index += 1;
             cool_down_count = 0;
         }
     }
-}
-
-fn resume(settings: Settings, args: &ResumeArgs) {
-    info!("Resuming brute force attack from pin: {}", args.pin);
-    // let result = hid_ops::write_to_device_file(KEYBOARD_DEVICE, "Hello World");
-    // match result {
-    //     Ok(_) => info!("Brute force attack complete"),
-    //     Err(e) => error!("Failed to start brute force attack: {}", e),
-    // }
 }
