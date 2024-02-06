@@ -45,6 +45,6 @@ This project was in most part made possible by inspiration from these projects:
 
 This project has uses content from these projects:
 
-- [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists/blob/7e603325107e552c9bfbaa280dbcfc0868f3526c/Passwords/Common-Credentials/four-digit-pin-codes-sorted-by-frequency-withcount.csv)
+- [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists)
 - [bbqsrc/cargo-ndk](https://github.com/bbqsrc/cargo-ndk)
 - [zenito9970/countdown-rs](https://github.com/zenito9970/countdown-rs)

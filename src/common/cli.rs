@@ -24,7 +24,7 @@ pub struct Cli {
     #[arg(short, long)]
     pub pin_size: Option<u8>,
 
-    /// <Optional> Turn debugging information on. Can be passed multiple times for more verbosity.
+    /// <Optional> Turn debugging information on. Can be passed up to 2 times for more verbosity.
     #[arg(short, long, action = ArgAction::Count)]
     pub verbose: Option<u8>,
 }
@@ -83,12 +83,12 @@ pub fn parse_cli_args(cli: &Cli) -> Settings {
             }
         },
         pin_list: match cli.pin_size {
-            Some(4) => &pin_lists::FOUR_DIGIT,
+            Some(4) => pin_lists::get_four_digit_pin_list(),
             Some(s) => {
                 error!("Invalid pin size: {}", s);
                 exit(1);
             }
-            None => &pin_lists::FOUR_DIGIT,
+            None => pin_lists::get_four_digit_pin_list(),
         },
     };
 }

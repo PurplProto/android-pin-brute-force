@@ -3,7 +3,7 @@ use common::{parse_cli_args, Cli, Commands, CoolDown, ResumeArgs, Settings};
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
-use std::{io::stdout, process::exit, time::Duration};
+use std::{io::stdout, process::exit, slice::Iter, time::Duration};
 
 mod common;
 mod hid;
@@ -55,7 +55,11 @@ fn main() {
 fn start(settings: Settings) {
     debug!("Starting brute force attack...");
 
-    start_brute_forcing(settings.device, settings.pin_list, settings.cool_down);
+    start_brute_forcing(
+        settings.device,
+        settings.pin_list.iter(),
+        settings.cool_down,
+    );
 }
 
 fn resume(settings: Settings, args: &ResumeArgs) {
@@ -70,14 +74,14 @@ fn resume(settings: Settings, args: &ResumeArgs) {
         }
     };
 
-    start_brute_forcing(settings.device, pin_list, settings.cool_down);
+    start_brute_forcing(settings.device, pin_list.iter(), settings.cool_down);
 }
 
-fn start_brute_forcing(device: String, pin_list: &[&str], cool_down: Vec<CoolDown>) {
+fn start_brute_forcing(device: String, pin_list: Iter<'_, &str>, cool_down: Vec<CoolDown>) {
     let mut cool_down_index = 0;
     let mut cool_down_count = 0;
 
-    for pin in pin_list.iter() {
+    for pin in pin_list {
         let mut result = hid::write_to_device_file(&device, pin);
         let mut attempts = 12;
 
