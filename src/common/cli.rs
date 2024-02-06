@@ -84,6 +84,7 @@ pub fn parse_cli_args(cli: &Cli) -> Settings {
         },
         pin_list: match cli.pin_size {
             Some(4) => pin_lists::get_four_digit_pin_list(),
+            Some(6) => pin_lists::get_six_digit_pin_list(),
             Some(s) => {
                 error!("Invalid pin size: {}", s);
                 exit(1);

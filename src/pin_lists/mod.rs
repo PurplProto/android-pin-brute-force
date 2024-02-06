@@ -4,3 +4,10 @@ pub fn get_four_digit_pin_list() -> Vec<&'static str> {
         .filter(|s| !s.is_empty() && !s.starts_with("//"))
         .collect()
 }
+
+pub fn get_six_digit_pin_list() -> Vec<&'static str> {
+    include_str!("../assets/six_digit_pins_optimised.txt")
+        .split("\n")
+        .filter(|s| !s.is_empty() && !s.starts_with("//"))
+        .collect()
+}
