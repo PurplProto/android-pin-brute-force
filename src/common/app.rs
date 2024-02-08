@@ -2,7 +2,8 @@ use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Settings<'a> {
-    pub device: String,
+    pub keyboard_device: String,
+    pub mouse_device: String,
     pub cool_down: Vec<CoolDown>,
     pub pin_list: Vec<&'a str>,
 }

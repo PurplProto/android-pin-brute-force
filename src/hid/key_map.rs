@@ -41,3 +41,12 @@ pub fn char_to_scancode(c: char) -> Option<u8> {
         _ => None,
     }
 }
+
+pub fn char_to_reportcode(button: &str) -> Option<u8> {
+    match button {
+        "b1" => Some(0x01),
+        "b2" => Some(0x02),
+        "b3" => Some(0x03),
+        _ => Some(0x00),
+    }
+}

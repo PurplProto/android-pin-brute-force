@@ -1,4 +1,4 @@
-use super::{CoolDown, Settings, KEYBOARD_DEVICE};
+use super::{CoolDown, Settings, KEYBOARD_DEVICE, MOUSE_DEVICE};
 use crate::{pin_lists, timeout::parse_duration};
 use clap::{command, ArgAction, Args, Parser, Subcommand};
 use log::error;
@@ -16,9 +16,13 @@ pub struct Cli {
     #[arg(short, long, action = ArgAction::Append)]
     pub cool_down: Vec<String>,
 
-    /// <Optional> device file to use. Defaults to: /dev/hidg0
+    /// <Optional> keyboard device file to use. Defaults to: /dev/hidg0
     #[arg(short, long)]
-    pub device: Option<String>,
+    pub keyboard_device: Option<String>,
+
+    /// <Optional> mouse device file to use. Defaults to: /dev/hidg1
+    #[arg(short, long)]
+    pub mouse_device: Option<String>,
 
     /// <Optional> Size of the pin to brute force. Defaults to 4. Currently only supports 4.
     #[arg(short, long)]
@@ -45,9 +49,13 @@ pub struct ResumeArgs {
 
 pub fn parse_cli_args(cli: &Cli) -> Settings {
     return Settings {
-        device: match &cli.device {
+        keyboard_device: match &cli.keyboard_device {
             Some(s) => s.to_string(),
             None => KEYBOARD_DEVICE.to_string(),
+        },
+        mouse_device: match &cli.mouse_device {
+            Some(s) => s.to_string(),
+            None => MOUSE_DEVICE.to_string(),
         },
         cool_down: match cli.cool_down.len() {
             0 => {
