@@ -102,6 +102,11 @@ fn start_brute_forcing(device: String, pin_list: Iter<'_, &str>, cool_down: Vec<
             result = hid::write_to_device_file(&device, pin);
         }
 
+        timeout::set_time_out(
+            cool_down[cool_down_index].duration,
+            "Pin attempt cool down ends in",
+        );
+
         if cool_down[cool_down_index].count == -1 {
             continue;
         }
