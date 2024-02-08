@@ -84,7 +84,7 @@ pub fn send_string_as_keyboard_scan_codes(device_file_path: &str, data: &str) ->
     log::info!("Sending pin: {}", data);
 
     for char in data.chars() {
-        let keycode = key_map::char_to_scancode(char);
+        let keycode = key_map::char_to_scancode(&char.to_string());
         match keycode {
             None => error!("Keycode not found for char: {}", char),
             Some(keycode) => {
@@ -110,6 +110,26 @@ pub fn send_string_as_keyboard_scan_codes(device_file_path: &str, data: &str) ->
         }
     }
 
+    let keycode = key_map::char_to_scancode("enter").unwrap();
+    write_to_device_file(
+        device_file_path,
+        &[
+            0x00,    // Modifier byte
+            0x00,    // Reserved
+            keycode, // Keycode
+            0x00, 0x00, 0x00, 0x00, 0x00,
+        ],
+    )?;
+    write_to_device_file(
+        device_file_path,
+        &[
+            0x00, // Modifier byte
+            0x00, // Reserved
+            0x00, // Keycode
+            0x00, 0x00, 0x00, 0x00, 0x00,
+        ],
+    )?;
+
     Ok(())
 }
 
@@ -129,6 +149,6 @@ fn write_to_device_file(device_file_path: &str, keycode: &[u8]) -> Result<(), io
     }
 
     // Give time for the device to process the keypress
-    thread::sleep(time::Duration::from_millis(50));
+    thread::sleep(time::Duration::from_millis(100));
     Ok(())
 }

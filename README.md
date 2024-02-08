@@ -38,13 +38,14 @@ This has only been tested on WSL using Ubuntu 22.04.3 LTS.
 
 ## Attributions
 
-This project was in most part made possible by inspiration from these projects:
+This project was inspired by these projects:
 
 - [urbanadventurer/Android-PIN-Bruteforce](https://github.com/urbanadventurer/Android-PIN-Bruteforce)
 - [byt3bl33d3r/duckhunter](https://github.com/byt3bl33d3r/duckhunter)
 
 This project has uses content from these projects:
 
+- [Linux USB HID gadget driver](https://docs.kernel.org/usb/gadget_hid.html)
 - [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists)
 - [bbqsrc/cargo-ndk](https://github.com/bbqsrc/cargo-ndk)
 - [zenito9970/countdown-rs](https://github.com/zenito9970/countdown-rs)

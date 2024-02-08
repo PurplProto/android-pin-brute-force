@@ -3,7 +3,7 @@ use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
-use std::{io::stdout, process::exit, slice::Iter, time::Duration};
+use std::{io::stdout, process::exit, slice::Iter, thread, time::Duration};
 
 mod common;
 mod hid;
@@ -97,6 +97,9 @@ fn start_brute_forcing(settings: &Settings, pin_list: Iter<'_, &str>) {
 
             mouse_result = hid::perform_swipe_up(&settings.mouse_device);
         }
+
+        // Wait for animation to complete
+        thread::sleep(Duration::from_secs(1));
 
         let mut keyboard_result =
             hid::send_string_as_keyboard_scan_codes(&settings.keyboard_device, pin);
