@@ -1,5 +1,5 @@
 use clap::Parser;
-use common::{parse_cli_args, Cli, Commands, CoolDown, ResumeArgs, Settings};
+use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
 use simple_logger::SimpleLogger;
