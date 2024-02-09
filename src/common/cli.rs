@@ -16,15 +16,15 @@ pub struct Cli {
     #[arg(short, long, action = ArgAction::Append)]
     pub cool_down: Vec<String>,
 
-    /// <Optional> keyboard device file to use. Defaults to: /dev/hidg0
+    /// <Optional> keyboard device file to use. Defaults to: /dev/hidg0.
     #[arg(short, long)]
     pub keyboard_device: Option<String>,
 
-    /// <Optional> mouse device file to use. Defaults to: /dev/hidg1
+    /// <Optional> mouse device file to use. Defaults to: /dev/hidg1.
     #[arg(short, long)]
     pub mouse_device: Option<String>,
 
-    /// <Optional> Size of the pin to brute force. Defaults to 4. Currently only supports 4.
+    /// <Optional> Size of the pin to brute force. Defaults to 4. Currently supports 4 and 6.
     #[arg(short, long)]
     pub pin_size: Option<u8>,
 
@@ -35,15 +35,15 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// starts brute force attack
+    /// Starts brute force attack
     Start,
-    /// resumes brute force attack
+    /// Resumes brute force attack
     Resume(ResumeArgs),
 }
 
 #[derive(Args)]
 pub struct ResumeArgs {
-    /// pin to resume from
+    /// Pin to resume from
     pub pin: String,
 }
 
