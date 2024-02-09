@@ -2,10 +2,11 @@
 
 This app is was written to brute force the pin of an Android device. This is risky and could cause the target device to completely lockdown and thus requiring a factory reset making the user data irrecoverable, so heed the following warnings:
 
-- ⚠️ This is known to not work on Android devices after v10
+- ⚠️ This is known to not work on Android devices after v10 ⚠️
 - This has been tested on only a single device (Samsung S8)
 - You use this project and it's content at your own risk
 - No warranty, help or support is implied as per the [MIT LICENSE](./LICENSE).
+- This the first app I've built in Rust, there will be bugs/issues
 
 The app is unable to detect a successful pin entry, so you will need to keep an eye on the process.
 
