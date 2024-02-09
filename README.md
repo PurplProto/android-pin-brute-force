@@ -2,10 +2,12 @@
 
 This app is was written to brute force the pin of an Android device. This is risky and could cause the target device to completely lockdown and thus requiring a factory reset making the user data irrecoverable, so heed the following warnings:
 
-- This is known to not work on Android devices after v10
+- ⚠️ This is known to not work on Android devices after v10
 - This has been tested on only a single device (Samsung S8)
 - You use this project and it's content at your own risk
-- No warranty, help or support is implied as per the [LICENSE](./LICENSE).
+- No warranty, help or support is implied as per the [MIT LICENSE](./LICENSE).
+
+The app is unable to detect a successful pin entry, so you will need to keep an eye on the process.
 
 ## Prerequisites
 
@@ -17,13 +19,51 @@ The following should be achievable by yourself already:
   - Root access
 - A locked Android device
 
-## Install
+## Usage
 
-TODO
+Grab the built binary and push it to your device in your favourite way.
+The binary should be in the Nethunter chroot and must be executable.
+
+```
+A tool to brute force the PIN of an Android device.
+
+Usage: android-pin-brute-force [OPTIONS] [COMMAND]
+
+Commands:
+  start   Starts brute force attack
+  resume  Resumes brute force attack
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -c, --cool-down <COOL_DOWN>
+          List of cool down periods between pin attempts. Go format and count seperated by a colon i.e. -c 15s:3 -c 10m:3 -c 30m:-1 Omitting the the count or using -1 sets the cool down period until the end of the pin list
+  -k, --keyboard-device <KEYBOARD_DEVICE>
+          <Optional> keyboard device file to use. Defaults to: /dev/hidg0
+  -m, --mouse-device <MOUSE_DEVICE>
+          <Optional> mouse device file to use. Defaults to: /dev/hidg1
+  -p, --pin-size <PIN_SIZE>
+          <Optional> Size of the pin to brute force. Defaults to 4. Currently supports 4 and 6
+  -v, --verbose...
+          <Optional> Turn debugging information on. Can be passed up to 2 times for more verbosity
+  -h, --help
+          Print help
+  -V, --version
+          Print version
+```
+
+### Example
+
+This will attempt 4 digit pins every 15 seconds 4 times, then every minute 4 times, followed by every 10 minutes just 2 times and finally will try a pin every 30 minutes until all remaining pins have been tried.
+
+```bash
+./android-pin-brute-force -v -c 15s:4 -c 1m:4 -c 10m:2 -c 30m:-1
+```
 
 ## Build the app yourself
 
 This has only been tested on WSL using Ubuntu 22.04.3 LTS.
+
+Due to some odd dynamic linker issues in the Nethunter chroot while testing, the app is statically complied so no external dependencies are required at runtime.
 
 ### Linux
 
