@@ -1,6 +1,7 @@
 [build]
-rustflags = ["-C", "target-feature=+crt-static"]
 target = "aarch64-linux-android"
 
 [profile.release]
 strip = true
+codegen-units = 1
+lto = true
