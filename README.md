@@ -71,11 +71,17 @@ Due to some odd dynamic linker issues in the Nethunter chroot while testing, the
 1. Install Rust: [https://www.rust-lang.org/tools/install](rustup)
 2. Install the Android [https://developer.android.com/tools/sdkmanager](sdkmanager)
 3. Install NDK using Android sdkmanager: `sdkmanager "platforms;android-33" "ndk;25.2.9519653"`
-4. Export `ANDROID_NDK_HOME` with the path of the NDK folder, you can find more [guidance here](https://github.com/bbqsrc/cargo-ndk). I suggest adding this variable to your `.bashrc`.
+4. Export `ANDROID_NDK_HOME` with the path of the NDK install folder, you can find more [guidance here](https://github.com/bbqsrc/cargo-ndk). I suggest adding this variable to your `.bashrc`.
 5. Clone this repo
 6. Open a shell and cd into the cloned repo
 7. Execute `cargo ndk -t arm64-v8a -p 33 build --release`
+    - Or for a statically linked binary do `export RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
 8. Locate the built executable at `target/aarch64-linux-android/release/android-pin-brute-force`
+
+## Downloads
+I had troubles getting the dynamically linked builds running in the Nethunter chroot environment, therefore all builds are built statically linked appart from x86_64, I could not get this building statically linked, therefore it is a dynamically linked binary.
+
+You can find the built binaries [on the releases page](https://github.com/PurplProto/android-pin-brute-force/releases/latest).
 
 ## Attributions
 
