@@ -46,13 +46,18 @@ jobs:
         RUSTFLAGS: ""
       run: cargo ndk -t x86_64-linux-android -p 33 build --release
 
+    - name: Rename binaries
+      run: |
+        mkdir -p releases
+        mv target/aarch64-linux-android/release/apbf releases/apbf-aarch64
+        mv target/armv7-linux-androideabi/release/apbf releases/apbf-armv7
+        mv target/i686-linux-android/release/apbf releases/apbf-i686
+        mv target/x86_64-linux-android/release/apbf releases/apbf-x86_64
+
     - name: Create release
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          target/aarch64-linux-android/release/apbf
-          target/armv7-linux-androideabi/release/apbf
-          target/i686-linux-android/release/apbf
-          target/x86_64-linux-android/release/apbf
-        tag_name: ${{ github.event.inputs.tag || github.ref }}
+        tag_name: ${{ format('refs/tags/{0}', github.event.inputs.tag || github.ref_name) }}
+        name: Release ${{ github.event.inputs.tag || github.ref_name }}
         generate_release_notes: true
+        files: releases/*
