@@ -1,0 +1,58 @@
+name: Build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build'
+        required: true
+  push:
+    tags:
+      - v**
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install cargo-ndk
+      run: cargo install cargo-ndk
+
+    - name: Install Rust targets for Android
+      run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
+    - name: Build aarch64-linux-android
+      env:
+        RUSTFLAGS: -C target-feature=+crt-static
+      run: cargo ndk -t aarch64-linux-android -p 33 build --release
+
+    - name: Build armv7-linux-androideabi
+      env:
+        RUSTFLAGS: -C target-feature=+crt-static
+      run: cargo ndk -t armv7-linux-androideabi -p 33 build --release
+
+    - name: Build i686-linux-android
+      env:
+        RUSTFLAGS: -C target-feature=+crt-static
+      run: cargo ndk -t i686-linux-android -p 33 build --release
+
+    - name: Build x86_64-linux-android
+      env:
+        # Currently unable to build statically for x86_64-linux-android, ensure that the target is built with the correct flags
+        RUSTFLAGS: ""
+      run: cargo ndk -t x86_64-linux-android -p 33 build --release
+
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/aarch64-linux-android/release/apbf
+          target/armv7-linux-androideabi/release/apbf
+          target/i686-linux-android/release/apbf
+          target/x86_64-linux-android/release/apbf
+        tag_name: ${{ github.event.inputs.tag || github.ref }}
+        generate_release_notes: true
