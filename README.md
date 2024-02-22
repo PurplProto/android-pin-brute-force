@@ -75,7 +75,7 @@ Due to some odd dynamic linker issues in the Nethunter chroot while testing, the
 5. Clone this repo
 6. Open a shell and cd into the cloned repo
 7. Execute `cargo ndk -t arm64-v8a -p 33 build --release`
-    - Or for a statically linked binary do `export RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
+    - Or for a statically linked binary do `RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
 8. Locate the built executable at `target/aarch64-linux-android/release/android-pin-brute-force`
 
 ## Downloads
