@@ -2,7 +2,8 @@ use clap::Parser;
 use common::{parse_cli_args, Cli, Commands, ResumeArgs, Settings};
 use crossterm::{cursor, terminal, ExecutableCommand, QueueableCommand};
 use log::{debug, error, info, trace, warn, LevelFilter};
-use simple_logger::SimpleLogger;
+use simplelog::{CombinedLogger, SharedLogger, SimpleLogger, WriteLogger};
+use std::fs::OpenOptions;
 use std::{io::stdout, process::exit, slice::Iter, thread, time::Duration};
 
 mod common;
@@ -12,15 +13,8 @@ mod timeout;
 
 fn main() {
     let cli = Cli::parse();
-    let mut logger = SimpleLogger::new();
+    configure_logging(&cli.verbose, &cli.log_file_path);
 
-    logger = match cli.verbose {
-        Some(0) => logger.with_level(LevelFilter::Info),
-        Some(1) => logger.with_level(LevelFilter::Debug),
-        _ => logger.with_level(LevelFilter::Trace),
-    };
-
-    logger.env().init().unwrap();
     info!("Starting app...");
 
     ctrlc::set_handler(move || {
@@ -52,14 +46,40 @@ fn main() {
     debug!("Finished app...");
 }
 
+fn configure_logging(verbosity: &Option<u8>, file_path: &Option<String>) {
+    let log_level = match verbosity {
+        Some(0) => LevelFilter::Info,
+        Some(1) => LevelFilter::Debug,
+        _ => LevelFilter::Trace,
+    };
+
+    let mut loggers: Vec<Box<dyn SharedLogger>> = Vec::new();
+    loggers.push(SimpleLogger::new(log_level, simplelog::Config::default()));
+
+    if let Some(log_file_path) = file_path {
+        loggers.push(WriteLogger::new(
+            log_level,
+            simplelog::Config::default(),
+            OpenOptions::new()
+                .create(true)
+                .write(true)
+                .append(true)
+                .open(log_file_path)
+                .unwrap(),
+        ));
+    }
+
+    CombinedLogger::init(loggers).unwrap();
+}
+
 fn start(settings: Settings) {
-    debug!("Starting brute force attack...");
+    info!("Starting brute force attack...");
 
     start_brute_forcing(&settings, settings.pin_list.iter());
 }
 
 fn resume(settings: Settings, args: &ResumeArgs) {
-    debug!("Resuming brute force attack from pin: {}", args.pin);
+    info!("Resuming brute force attack from pin: {}", args.pin);
 
     let pin_list_start = settings.pin_list.iter().position(|&pin| pin == args.pin);
     let pin_list = match pin_list_start {

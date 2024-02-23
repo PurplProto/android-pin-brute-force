@@ -3,12 +3,12 @@
 This app is was written to brute force the pin of an Android device. This is risky and could cause the target device to completely lockdown and thus requiring a factory reset making the user data irrecoverable, so heed the following warnings:
 
 - ⚠️ This is known to not work on Android devices after v10 ⚠️
-- This has been tested on only a single device (Samsung S8)
+- This has been tested on only a single target device (Samsung S8) and host device (Google Pixel 3XL)
 - You use this project and it's content at your own risk
 - No warranty, help or support is implied as per the [MIT LICENSE](./LICENSE).
-- This the first app I've built in Rust, there will be bugs/issues
+- This the first app I've built in Rust, therefore expect bugs/issues (feel free to create an issue, although I can't guarantee I can fix it myself)
 
-The app is unable to detect a successful pin entry, so you will need to keep an eye on the process.
+⚠️ The app is unable to detect a successful pin entry, so you will need to keep an check on the process. ⚠️
 
 ## Prerequisites
 
@@ -16,19 +16,19 @@ The following should be achievable by yourself already:
 
 - A spare Android device
   - Running a kernel with HID support
-  - A full chroot install of Nethunter
-  - Root access
+  - With a full chroot install of Nethunter
+  - Has Root access
 - A locked Android device
 
 ## Usage
 
-Grab the built binary and push it to your device in your favourite way.
+Grab the built binary and push it to your device in your favourite way, i.e. `adb push apbf ~/apbf` or if you have the Nethunter ssh deamon running `rsync -P apbf root@nethunterip:~/`.
 The binary should be in the Nethunter chroot and must be executable.
 
 ```
 A tool to brute force the PIN of an Android device.
 
-Usage: android-pin-brute-force [OPTIONS] [COMMAND]
+Usage: apbf [OPTIONS] [COMMAND]
 
 Commands:
   start   Starts brute force attack
@@ -46,6 +46,8 @@ Options:
           <Optional> Size of the pin to brute force. Defaults to 4. Currently supports 4 and 6
   -v, --verbose...
           <Optional> Turn debugging information on. Can be passed up to 2 times for more verbosity
+  -l, --log-file-path <LOG_FILE_PATH>
+          <Optional> Logfile path. If exists, appends to the file
   -h, --help
           Print help
   -V, --version
@@ -57,14 +59,14 @@ Options:
 This will attempt 4 digit pins every 15 seconds 4 times, then every minute 4 times, followed by every 10 minutes just 2 times and finally will try a pin every 30 minutes until all remaining pins have been tried.
 
 ```bash
-./android-pin-brute-force -v -c 15s:4 -c 1m:4 -c 10m:2 -c 30m:-1
+./apbf -v -c 15s:4 -c 1m:4 -c 10m:2 -c 30m:-1
 ```
 
 ## Build the app yourself
 
 This has only been tested on WSL using Ubuntu 22.04.3 LTS.
 
-Due to some odd dynamic linker issues in the Nethunter chroot while testing, the app is statically complied so no external dependencies are required at runtime.
+Due to some odd dynamic linker issues in the Nethunter chroot while testing, the app is statically complied so no external dependencies are required at runtime (with the exception of the x86_64 build).
 
 ### Linux
 
@@ -75,7 +77,7 @@ Due to some odd dynamic linker issues in the Nethunter chroot while testing, the
 5. Clone this repo
 6. Open a shell and cd into the cloned repo
 7. Execute `cargo ndk -t arm64-v8a -p 33 build --release`
-    - Or for a statically linked binary do `export RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
+    - Or for a statically linked binary do `RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
 8. Locate the built executable at `target/aarch64-linux-android/release/android-pin-brute-force`
 
 ## Downloads

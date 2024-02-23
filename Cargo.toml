@@ -1,7 +1,7 @@
 [package]
 name = "apbf"
 authors = ["PurplProto"]
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 description = "A tool to brute force the PIN of an Android device."
 
@@ -13,4 +13,4 @@ crossterm = "0.27.0"
 ctrlc = { version = "3.4.2", features = ["termination"] }
 log = "0.4.20"
 regex = "1.10.3"
-simple_logger = "4.3.3"
+simplelog = "0.12.1"
