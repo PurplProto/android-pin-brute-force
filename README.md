@@ -18,7 +18,13 @@ The following should be achievable by yourself already:
   - Running a kernel with HID support
   - With a full chroot install of Nethunter
   - Has Root access
+  - `hid` USB Function enabled in the USB Arsenal section of the Nethunter App
 - A locked Android device
+
+## Downloads
+I had troubles getting the dynamically linked builds running in the Nethunter chroot environment, therefore all builds are built statically linked appart from x86_64, I could not get this building statically linked, therefore it is a dynamically linked binary.
+
+You can find the built binaries [on the releases page](https://github.com/PurplProto/android-pin-brute-force/releases/latest).
 
 ## Usage
 
@@ -79,11 +85,6 @@ Due to some odd dynamic linker issues in the Nethunter chroot while testing, the
 7. Execute `cargo ndk -t arm64-v8a -p 33 build --release`
     - Or for a statically linked binary do `RUSTFLAGS="-C target-feature=+crt-static" cargo ndk -t arm64-v8a -p 33 build --release` instead
 8. Locate the built executable at `target/aarch64-linux-android/release/android-pin-brute-force`
-
-## Downloads
-I had troubles getting the dynamically linked builds running in the Nethunter chroot environment, therefore all builds are built statically linked appart from x86_64, I could not get this building statically linked, therefore it is a dynamically linked binary.
-
-You can find the built binaries [on the releases page](https://github.com/PurplProto/android-pin-brute-force/releases/latest).
 
 ## Attributions
 
