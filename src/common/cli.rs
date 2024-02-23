@@ -31,6 +31,10 @@ pub struct Cli {
     /// <Optional> Turn debugging information on. Can be passed up to 2 times for more verbosity.
     #[arg(short, long, action = ArgAction::Count)]
     pub verbose: Option<u8>,
+
+    /// <Optional> Logfile path. If exists, appends to the file.
+    #[arg(short, long)]
+    pub log_file_path: Option<String>,
 }
 
 #[derive(Subcommand)]
